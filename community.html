@@ -32,21 +32,35 @@
             </div>
         </div>
     </nav>
-<div style="text-align: center;">
-    <div class="dropdown" style="margin: 10px;" >
-        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
-            aria-haspopup="true" aria-expanded="false">
-            Select topic
-        </button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            
+    <div class="autocomplete" style="width:100%;">
+        <p for="skills" style="font-size:18px;padding:6px;margin-bottom:0" class="font-op-b text-center extend">Community sessions </p>
+           <input id="skills" type="text" class="form-control"  placeholder="Enter group name">
+    </div>
+    <!-- conatainer for the cards -->
+    <div class="container">
+        <div style="width:100%;background:#eeeeee;">
+        <div class="flex">
+            <p id="groupname" style="width:80%" class="font-op-b"></p>
+            <p id="participants" style="width:20%" class="font-op-b"></p>
+        </div>
+        </div>
+        <div id="master">
+          
+        </div>
+        <div class="row">
+            <div class="col-md-10">
+                    <input type="text" style="border:" id="content">
 
+            </div>
+            <div class="col-md-1">
+                <button style="background:black" class="btn btn-primary rounded-circle" id="groupsubmit"><i class="fas fa-paper-plane" style="color:white"></i>
+                </button>
+            </div>
+            <div class="col-md-1">
+                    <button style="background:black" class="btn btn-primary rounded-circle" id="groupsubmit"><i class="fas fa-paper-plane" style="color:white"></i>
+                    </div>
         </div>
     </div>
-</div>
-    <!-- conatainer for the cards -->
-    <div class="tcontainer" style="text-align: center;"></div>
-
 
 
 
@@ -66,34 +80,11 @@
     </script>
 
 
-    <script id="entry-template-droplist" type="text/x-handlebars-template">
-        <div class="target">
-            <a class="nav-item nav-link regular" id="dropmenu" style="font-size:19px;color:black; cursor: pointer;" >{{title}}</a>
-        </div>
-    </script>
+  
 
 
 
-    <script id="entry-template" type="text/x-handlebars-template">
-        <div class="container" style="text-align: center;">
-                
-                <div>
-                    <div class="card" style="width: 40vw;margin: 2vh 2vw;display:inline-block;text-align: left;">
-                        <div class="card-body">
-                            <h5 class="topic font-op-b">{{title}}</h5>
-                            <div>
-                                <!-- <label class="regular">Content : </label> -->
-                                <p id="cont" class="card-text regular">{{content}}</p>
-                            </div>
-                            
-                            <!-- <div>Content added by: <span class="font-op-b">{{name}}</span></div> -->
-                        
-                        </div>
-                    </div>
-                </div>
-            </div>
-     </script>
-    <script src="bundle/treasury.js"></script>
+    <script src="bundle/community.js"></script>
 
 </body>
 

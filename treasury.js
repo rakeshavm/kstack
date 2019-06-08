@@ -1,9 +1,11 @@
 var {
     sel,
     selAll,
-    create,log,
+    create,
+    log,
     get
 } = require('./utility');
+firebase = require('firebase');
 
 var Handlebars = require('handlebars');
 
@@ -27,13 +29,31 @@ log(firebase);
 var db = firebase.firestore();
 
 log(db);
-var template = (obj) => {
+var template = (obj, n) => {
     var src = sel("#entry-template").innerHTML;
     var temp = Handlebars.compile(src);
-    sel(".tcontainer").innerHTML += temp(obj);
+
+    if (n === 3) {
+        console.log("333333");
+        sel(".tcontainer").innerHTML = "";
+    }
+    else {
+        if (n === 2) sel(".tcontainer").innerHTML = "";
+        sel(".tcontainer").innerHTML += convert(temp(obj));
+        // console.log(temp(obj))
+
+    }
+
+}
+var convert = (text) => {
+    var exp = /((\b(https?|ftp|file):\/\/|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+    var text1 = text.replace(exp, "<a href='$1'>$1</a>");
+    var exp2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+    text1.replace(exp2, `$1<a target="_blank" href="http://$2">$2</a>`);
+    return text1;
 }
 
-var addDropdownEle = (obj)=>{
+var addDropdownEle = (obj) => {
     var src = sel("#entry-template-droplist").innerHTML;
     var temp = Handlebars.compile(src);
     sel(".dropdown-menu").innerHTML += temp(obj)
@@ -62,10 +82,14 @@ var getTopicsCard = () => {
                                 docs.forEach(doc => {
                                     log(doc.data().title);
                                     tcontent.title = doc.data().title;
-                                    tcontent.name = name;
+                                    // tcontent.name = name;
+                                    // log(tcontent);
+                                    // tcontent.content = convert(tcontent.content);
                                     log(tcontent);
-                                    template(tcontent);
+                                    template(tcontent, 1);
                                 })
+                            }).catch(() => {
+                                template({}, 3);
                             })
 
                             // result.push(tcontent);
@@ -80,39 +104,55 @@ var getTopicsCard = () => {
 
 
 
-var getTopics = ()=>{
+var getTopics = () => {
     let result = [];
-    get(db,"topics")
-    .then((topics)=>{
-        topics.forEach(topic=>{
-            result.push({title:topic.title});
-        })
-        console.log(result);
-        result.forEach(res=>{
-            addDropdownEle(res);
+    get(db, "topics")
+        .then((topics) => {
+            topics.forEach(topic => {
+                result.push({
+                    title: topic.title
+                });
+            })
+            console.log(result);
+            result.forEach(res => {
+                addDropdownEle(res);
 
-        })
+            })
 
-        let a = document.querySelectorAll(".target");
-        a.forEach((ele)=>{
-            ele.addEventListener("click",(event)=>{
-                console.log(event.target.innerHTML);
-                db.collection("topics").where("title","==",event.target.innerHTML).get().then((x)=>{
-                    console.log(x);
-                    x.forEach((doc)=>{
-                        console.log(doc.data().id);
+            let a = document.querySelectorAll(".target");
+            a.forEach((ele) => {
+                ele.addEventListener("click", (event) => {
+                    console.log(event.target.innerHTML);
+                    db.collection("topics").where("title", "==", event.target.innerHTML).get().then((x) => {
+                        console.log(x);
+                        x.forEach((doc) => {
+                            console.log(doc.data().id);
+                            db.collection("treasury").where("topicid", "==", doc.data().id).where("flag", "==", true).get()
+                                .then(docs => {
+                                    if(docs.docs.length === 0)template(item,3);
+                                    docs.forEach(doc => {
+                                        console.log(doc.data());
+                                        let item = doc.data();
+                                        item.title = event.target.innerHTML;
+                                        console.log(item);
+                                        template(item, 2);
+
+                                    })
+                                }).catch(() => {
+                                    console.log("hmmmmm");
+                                    template({}, 3);
+                                })
+
+                        })
                     })
                 })
             })
+
         })
-        
-    })
-    
+
 }
 
 
 getTopicsCard();
 
 getTopics();
-
-

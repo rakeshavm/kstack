@@ -111,14 +111,14 @@ sel("#signup").addEventListener("click", function () {
                 });
             });
 
-        // auth.onAuthStateChanged(function (authdata) {
-        //     if (authdata && (!signedUp)) {
-        //         window.open("home.html", "_self");
-        //         return;
-        //     } else {
-        //         console.log("Signed out");
-        //     }
-        // });
+        auth.onAuthStateChanged(function (authdata) {
+            if (authdata && (!signedUp)) {
+                window.open("community.html", "_self");
+                return;
+            } else {
+                console.log("Signed out");
+            }
+        });
 
 
         function signIn(email, pass) {
