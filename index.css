@@ -2,10 +2,22 @@ body {
     font: 16px Arial;
 }
 
+*{
+    margin:0;
+    padding:0;
+    box-sizing: border-box;
+}
 /*the container must be positioned relative:*/
 .autocomplete {
     position: relative;
     display: inline-block;
+}
+.flex{
+    display: flex;
+    justify-content: center;
+}
+.flex>button{
+    flex:1;
 }
 
 input {
@@ -16,6 +28,10 @@ input {
 }
 
 input[type=text] {
+    background-color: #f1f1f1;
+    width: 100%;
+}
+input[type=password] {
     background-color: #f1f1f1;
     width: 100%;
 }
@@ -64,23 +80,28 @@ body {
 }
 
 body {
-    /* font-family:"Monsterat"; */
     font-size: 24px;
-    /* background-color: rgb(0,0,0); */
-    background: #2980b9;
-    background: linear-gradient(to right, #2c3e50, #2980b9);
-
+    background-image: linear-gradient(to right, #43e97b 0%, #38f9d7 100%);
 }
 
 .primary {
-    /* font-family: 'Righteous'; */
-    font-size: 35px;
-    color: #333333;
+    font-family: 'Poppins', sans-serif;
+    font-size: 28px;
+    color: black;
+}
+.regular{
+    font-family: 'Raleway', sans-serif;
+    font-size:14px;
 }
 
 .font-op {
-    font-size: 28px !important;
+    font-size: 16px !important;
     color: white !important;
+}
+.font-op-b {
+    font-family: 'Poppins';
+    font-size: 24px !important;
+    color: black !important;
 }
 
 .extend {
@@ -91,11 +112,7 @@ body {
     padding: 16px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+
 
 #login {
     border-radius: 25px;
@@ -115,3 +132,4 @@ body {
 .form-control {
     margin-bottom: 15px;
 }
+

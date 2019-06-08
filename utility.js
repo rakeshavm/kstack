@@ -14,4 +14,36 @@ Object.keys(options).forEach((data)=>{
 return els;
 }
 
-module.exports={sel,selAll,create};
+
+function get(db,collection,a,b,c){
+    return new Promise((res,rej)=>{
+        if(a && b && c){
+            let data=[]
+            db.collection(collection).where(a,b,c).get().then((qs)=>{
+                qs.forEach((d)=>{
+                   data.push(d.data());
+                });
+                res(data);
+            }).catch((err)=>rej(err));
+        }else{
+            let data=[];
+            db.collection(collection).get().then((qs)=>{
+                qs.forEach((d)=>{
+                    data.push(d.data());
+                 });
+                 res(data);
+            }).catch((err)=>rej(err));
+        }
+      
+    });
+};
+
+function log(d){
+    console.log(d);
+}
+
+// get(db,"users","uid","==","kl").then((data)=>data);
+// array of documents
+
+
+module.exports={sel,selAll,create,get,log};
