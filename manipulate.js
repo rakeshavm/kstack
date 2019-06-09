@@ -4,26 +4,47 @@ var template = "<div class='fa clearfix'><div class='speech-bubble-{{dir}}' styl
 
 
 var temp = Handlebars.compile(template);
+var parents;
+var parents1;
+var parents2;
 
-function init(parent) {
-    return function (obj) {
-        var dir = obj.isuser ? "right" : "left";
-        parent.innerHTML += temp({
+function inject(obj) {
+    parents.innerHTML = "";
+    obj.forEach(element => {
+        var dir = element.isuser ? "right" : "left";
+        parents.innerHTML += temp({
             dir,
-            message: obj.content,
-            user: name,
-            time: time.toLocaleTimeString()
+            message: element.content,
+            user: element.name,
+            time: element.time
         })
+    });
+    
 
+}
+
+function init(parent, parent1, parent2) {
+    parents = parent;
+    parents1 = parent1;
+    parents2 = parent2;
+    return {
+        inject,
+        setParticipants,
+        setGroupname,
+        fallback
     }
 }
 
-function setParticipants(no, el) {
-    el.innerHTML = `${no} Participants`;
+function setParticipants(no) {
+    parents1.innerHTML = `${no} Participants`;
 }
 
-function setGroupname(str, el) {
-    el.innerHTML = str;
+function setGroupname(str) {
+    parents2.innerHTML = str;
+};
+
+function fallback() {
+    parents.innerHTML = "No messages conversed yet";
 }
 
 module.exports = init;

@@ -1,3 +1,4 @@
+firebase = require('firebase');
 var {
   sel,
   selAll,
@@ -6,8 +7,7 @@ var {
   get
 } = require('./utility');
 var autocomplete = require("./autocomplete.js");
-
-firebase = require('firebase');
+var start = require('./manipulate');
 
 var firebaseConfig = {
   apiKey: "AIzaSyDnbW82o5P_oiUEzC1sEfiBPa4nfYZUY4s",
@@ -21,6 +21,13 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 var db = firebase.firestore();
+var {
+  inject,
+  setParticipants,
+  setGroupname,
+  fallback
+} = start(sel("#master"), sel("#participants"), sel("#groupname"));
+
 
 var arr = [];
 var x;
@@ -28,71 +35,151 @@ var search; // search element
 
 var topic = []; //list o
 
+var topics = {};
+var tarr = [];
+var notopic = 100;
+var gettopic = () => {
+  db.collection('topics').get()
+    .then((docs) => {
+      docs.forEach((doc) => {
+        topics[doc.data().title] = doc.data().id;
+        notopic += 1;
+      })
+      // console.log(topics);
+      tarr = Object.keys(topics);
+      // console.log(notopic);
+
+      // autocomplete(sel("#skills"), Object.keys(topics));
+    })
+}
+
+gettopic();
+
+
+sel("#subm").addEventListener("click", () => {
+  
+  var skil=[];
+  var title = document.querySelector("#newtopic").value;
+  console.log("click");
+  console.log(title);
+  tarr.push(title);
+ 
+  db.collection('users').where("uid","==",firebase.auth().currentUser.uid).get().then((docs) => {
+    docs.forEach((doc)=>{
+      skil = doc.data().skills;
+      skil.push(title)
+    })
+    console.log(tarr);
+  })
+
+  db.collection('users').where("uid","==",firebase.auth().currentUser.uid).set({
+       skills: skil
+  }, {
+    merge: true 
+  }) 
+  db.collection('topics').add({
+    title: title,
+    id: notopic
+  }).then(() => {
+    notopic = 100;
+    topics = {};
+    gettopic();
+  })
+})
 get(db, "topics").then(da => {
   da.forEach(data => {
-    topic.push(data)
+    topic.push(data);
   })
+}).then(() => {
+  var titles = topic.map(data => data.title)
+  console.log(titles);
+  autocomplete(sel("#skills"), titles);
+
+  sel("#enter").addEventListener('click', () => {
+    search = sel("#skills").value;
+    if ((titles.includes(search))) {
+      x = topic.filter((x) => x.title == search)[0].id;
+      console.log(x);
+      setGroupname(search);
+      brain();
+    }
+  });
+
+
+
+
+  sel("#groupsubmit").addEventListener('click', () => {
+    db.collection("treasury").add({
+      content: sel("#content").value,
+      flag: false,
+      time: +new Date(),
+      topicid: topic.filter(data => data.title == search)[0].id,
+      userid: firebase.auth().currentUser.uid
+    }).then(() => console.log("added new tpic to fires as new skill"))
+  });
+
+  sel("#tgsubmit").addEventListener("click", () => {
+    db.collection("treasury").add({
+      content: sel("#content").value,
+      flag: true,
+      time: +new Date(),
+      topicid: topic.filter(data => data.title == search)[0].id,
+      userid: firebase.auth().currentUser.uid
+    }).then(() => console.log("added new tpic to fires as new skill"))
+  });
+
+  // arr stores values of all chats of that particular topic
 });
 
-sel("#enter").addEventListener('click', () => {
-  search = sel("#search").value;
-  if (!(topic.map( (data)=> data.title ).includes(search))) {
-    db.collection("topics").add({
-      id: topic.length + 1 + 100,
-      title: search
-    }).then(() => {
-      topic.push(search);
-    })
-  }
-});
 
+function brain() {
+  db.collection("treasury").where("topicid", "==", x)
+    .onSnapshot(function (snapshot) {
+      if (snapshot.docs.length != 0) {
+        var content, time, userid, name, i = 0;
+        var limit = snapshot.docChanges().length;
+        console.log(limit, "papa");
+        snapshot.docChanges().forEach(function (change) {
+          if (change.type === "added") {
+            i += 1;
+            var data = change.doc.data();
+            console.log(data);
+            content = data.content;
+            time = new Date(data.time).toLocaleTimeString();
+            userid = data.userid;
+            console.log(userid);
+            (function (userid, content, time) {
+              get(db, "users", "uid", "==", userid).then((da) => {
+                console.log(da);
+                name = da[0].name;
+                isuser = (da[0].uid == firebase.auth().currentUser.uid) ? true : false;
+                console.log(userid);
+                arr.push({
+                  content,
+                  time,
+                  name,
+                  userid,
+                  isuser
+                });
+                console.log(arr, "mosfjndfj");
 
-get(db, "topics", "title", '==', x).then(da => {
-  search = da[0].id
-}).catch(() => console.log('Not found'));
+                if (i == limit) {
+                  console.log("---------------");
+                  console.log(arr)
+                  var len = [...new Set(arr.map(data => data.userid))].length;
+                  setParticipants(len);
+                  inject(arr);
+                }
+              })
 
-sel("#groupsubmit").addEventListener('click', () => {
-      db.collection("treasury").add({
-        content: sel("#content").value,
-        flag: false,
-        time: firebase.firestore.Timestamp.fromDate(new Date()),
-        topicid: ,
-        userid: firebase.auth().currentUser.uid
-      })
+            })(userid, content, time);
 
-      // arr stores values of all chats of that particular topic
-
-
-      db.collection("treasury").where("topicid", "==", 101)
-        .onSnapshot(function (snapshot) {
-          if (snapshot.docs.length != 0) {
-            var content, time, userid, name, i = 0;
-            var limit = snapshot.docChanges().length;
-            snapshot.docChanges().forEach(function (change) {
-              if (change.type === "added") {
-                i += 1;
-                var userDoc = change.doc.data();
-                content = data.content;
-                time = data.time.toDate();
-                userid = data.userid;
-                get(db, "users", "uid", "==", userid).then((da) => {
-                  name = da[0].name;
-                  isuser = (da[0].uid == firebase.auth().currentUser.uid) ? true : false;
-                  arr.push({
-                    content,
-                    time,
-                    name,
-                    isuser
-                  })
-                  if (i == limit) {
-                    //    artifact(arr)
-                  }
-                })
-              }
-
-            })
-          } else {
-            // something()
           }
 
-        });
+        })
+      } else {
+        fallback();
+      }
+
+    })
+}

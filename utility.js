@@ -38,6 +38,14 @@ function get(db,collection,a,b,c){
     });
 };
 
+function getImage(db,uid){
+    return new Promise((res,rej)=>{
+       get(db,"users","uid","==",uid).then((data)=>{
+           res(data[0].profilePic);
+       }).catch((err)=>rej(err));
+    });
+}
+
 function log(d){
     console.log(d);
 }
@@ -46,4 +54,4 @@ function log(d){
 // array of documents
 
 
-module.exports={sel,selAll,create,get,log};
+module.exports={sel,selAll,create,get,log,getImage};

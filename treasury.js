@@ -68,12 +68,12 @@ var getTopicsCard = () => {
             return doc.data().skills;
         })
         .then(skills => {
-            log(skills);
+            log(skills,"hey");
             // result = [];
             skills.forEach(skill => {
                 // log("shit:",skill);
 
-                db.collection("treasury").where("topicid", "==", skill).orderBy("time", "desc").get()
+                db.collection("treasury").where("topicid", "==", skill).where("flag", "==", true).orderBy("time", "desc").get()
                     .then(docs => {
                         // log(docs);
                         docs.forEach((doc, i) => {

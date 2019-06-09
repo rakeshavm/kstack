@@ -32,12 +32,39 @@
             </div>
         </div>
     </nav>
+    <div style="text-align: center;">
     <div class="autocomplete" style="width:100%;">
         <p for="skills" style="font-size:18px;padding:6px;margin-bottom:0" class="font-op-b text-center extend">Community sessions </p>
            <input id="skills" type="text" class="form-control"  placeholder="Enter group name">
+           <button class="btn btn-primary" style="margin-bottom:10px;"id="enter">Join</button>
+    <button type="button" style="margin-bottom:10px;"class="btn btn-primary" data-toggle="modal"
+    data-target="#exampleModal">Add New Skill</button>
+</div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Add Skill</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input class="" placeholder="enter skill.." id="newtopic" type="text"></input>
+        </div>
+        <div class="modal-footer">
+          <button type="button" id="subm" class="btn btn-primary" data-dismiss="modal">Submit</button>
+          <button type="button" class="btn btn-secondary">Cancel</button>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
     <!-- conatainer for the cards -->
-    <div class="container">
+    <div class="container" style="background:#eeeeee;">
         <div style="width:100%;background:#eeeeee;">
         <div class="flex">
             <p id="groupname" style="width:80%" class="font-op-b"></p>
@@ -48,16 +75,16 @@
           
         </div>
         <div class="row">
-            <div class="col-md-10">
-                    <input type="text" style="border:" id="content">
+            <div class="col-md-10" style="padding-right:0;padding-left:0">
+                    <input type="text" style="border:2px solid black" id="content">
 
             </div>
-            <div class="col-md-1">
-                <button style="background:black" class="btn btn-primary rounded-circle" id="groupsubmit"><i class="fas fa-paper-plane" style="color:white"></i>
+            <div class="col-md-1" style="padding-right:0;padding-left:0;background: black">
+                <button style="background:black;border:none;outline:none;" class="btn btn-primary regular" id="groupsubmit"><span>Send &nbsp;&nbsp;</span><i class="fas fa-paper-plane" style="color:white"></i>
                 </button>
             </div>
-            <div class="col-md-1">
-                    <button style="background:black" class="btn btn-primary rounded-circle" id="groupsubmit"><i class="fas fa-paper-plane" style="color:white"></i>
+            <div class="col-md-1" style="padding-right:0;padding-left:0;background: white">
+                    <button style="background:white;border:none;outline:none;padding-left:0;padding-right:0" class="btn btn-primary regular" id="tgsubmit"><span style="color:black">Treasure&nbsp;&nbsp;</span><i class="fas fa-paper-plane" style="color:black"></i>
                     </div>
         </div>
     </div>

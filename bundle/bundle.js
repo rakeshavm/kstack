@@ -1,4 +1,190 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+// shim for using process in browser
+var process = module.exports = {};
+
+// cached from whatever global is present so that test runners that stub it
+// don't break things.  But we need to wrap it in a try catch in case it is
+// wrapped in strict mode code which doesn't define any globals.  It's inside a
+// function because try/catches deoptimize in certain engines.
+
+var cachedSetTimeout;
+var cachedClearTimeout;
+
+function defaultSetTimout() {
+    throw new Error('setTimeout has not been defined');
+}
+function defaultClearTimeout () {
+    throw new Error('clearTimeout has not been defined');
+}
+(function () {
+    try {
+        if (typeof setTimeout === 'function') {
+            cachedSetTimeout = setTimeout;
+        } else {
+            cachedSetTimeout = defaultSetTimout;
+        }
+    } catch (e) {
+        cachedSetTimeout = defaultSetTimout;
+    }
+    try {
+        if (typeof clearTimeout === 'function') {
+            cachedClearTimeout = clearTimeout;
+        } else {
+            cachedClearTimeout = defaultClearTimeout;
+        }
+    } catch (e) {
+        cachedClearTimeout = defaultClearTimeout;
+    }
+} ())
+function runTimeout(fun) {
+    if (cachedSetTimeout === setTimeout) {
+        //normal enviroments in sane situations
+        return setTimeout(fun, 0);
+    }
+    // if setTimeout wasn't available but was latter defined
+    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
+        cachedSetTimeout = setTimeout;
+        return setTimeout(fun, 0);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedSetTimeout(fun, 0);
+    } catch(e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
+            return cachedSetTimeout.call(null, fun, 0);
+        } catch(e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
+            return cachedSetTimeout.call(this, fun, 0);
+        }
+    }
+
+
+}
+function runClearTimeout(marker) {
+    if (cachedClearTimeout === clearTimeout) {
+        //normal enviroments in sane situations
+        return clearTimeout(marker);
+    }
+    // if clearTimeout wasn't available but was latter defined
+    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
+        cachedClearTimeout = clearTimeout;
+        return clearTimeout(marker);
+    }
+    try {
+        // when when somebody has screwed with setTimeout but no I.E. maddness
+        return cachedClearTimeout(marker);
+    } catch (e){
+        try {
+            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
+            return cachedClearTimeout.call(null, marker);
+        } catch (e){
+            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
+            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
+            return cachedClearTimeout.call(this, marker);
+        }
+    }
+
+
+
+}
+var queue = [];
+var draining = false;
+var currentQueue;
+var queueIndex = -1;
+
+function cleanUpNextTick() {
+    if (!draining || !currentQueue) {
+        return;
+    }
+    draining = false;
+    if (currentQueue.length) {
+        queue = currentQueue.concat(queue);
+    } else {
+        queueIndex = -1;
+    }
+    if (queue.length) {
+        drainQueue();
+    }
+}
+
+function drainQueue() {
+    if (draining) {
+        return;
+    }
+    var timeout = runTimeout(cleanUpNextTick);
+    draining = true;
+
+    var len = queue.length;
+    while(len) {
+        currentQueue = queue;
+        queue = [];
+        while (++queueIndex < len) {
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
+        }
+        queueIndex = -1;
+        len = queue.length;
+    }
+    currentQueue = null;
+    draining = false;
+    runClearTimeout(timeout);
+}
+
+process.nextTick = function (fun) {
+    var args = new Array(arguments.length - 1);
+    if (arguments.length > 1) {
+        for (var i = 1; i < arguments.length; i++) {
+            args[i - 1] = arguments[i];
+        }
+    }
+    queue.push(new Item(fun, args));
+    if (queue.length === 1 && !draining) {
+        runTimeout(drainQueue);
+    }
+};
+
+// v8 likes predictible objects
+function Item(fun, array) {
+    this.fun = fun;
+    this.array = array;
+}
+Item.prototype.run = function () {
+    this.fun.apply(null, this.array);
+};
+process.title = 'browser';
+process.browser = true;
+process.env = {};
+process.argv = [];
+process.version = ''; // empty string to avoid regexp issues
+process.versions = {};
+
+function noop() {}
+
+process.on = noop;
+process.addListener = noop;
+process.once = noop;
+process.off = noop;
+process.removeListener = noop;
+process.removeAllListeners = noop;
+process.emit = noop;
+process.prependListener = noop;
+process.prependOnceListener = noop;
+
+process.listeners = function (name) { return [] }
+
+process.binding = function (name) {
+    throw new Error('process.binding is not supported');
+};
+
+process.cwd = function () { return '/' };
+process.chdir = function (dir) {
+    throw new Error('process.chdir is not supported');
+};
+process.umask = function() { return 0; };
+
+},{}],2:[function(require,module,exports){
 function autocomplete(inp, arr) {
     /*the autocomplete function takes two arguments,
     the text field element and an array of possible autocompleted values:*/
@@ -100,16 +286,17 @@ function autocomplete(inp, arr) {
 
   module.exports=autocomplete;
   
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 var autocomplete = require("./autocomplete.js");
-var $=require('jquery');
+var $ = require('jquery');
 require('gasparesganga-jquery-loading-overlay');
 
 firebase = require('firebase');
 var {
     sel,
     selAll,
-    create,get
+    create,
+    get
 } = require("./utility.js");
 var notopic = 0;
 var firebaseConfig = {
@@ -138,100 +325,133 @@ sel("#signin").addEventListener("click", function () {
 
 sel("#signup").addEventListener("click", function () {
     $.LoadingOverlay("show");
-            signedUp = true;
-            var gender = sel("#m").checked ? sel("#m").value : sel("#f").value;
-            var name = sel("#username").value;
-            var email = sel("#email").value;
-            var pass = sel("#pwd").value;
+    signedUp = true;
+    var gender = sel("#m").checked ? sel("#m").value : sel("#f").value;
+    var name = sel("#username").value;
+    var email = sel("#email").value;
+    var pass = sel("#pwd").value;
 
-            firebase.auth().createUserWithEmailAndPassword(email, pass).then(() => {
-                return db.collection("users").add({
-                    gender,
-                    name,
-                    email,
-                    uid: firebase.auth().currentUser.uid
-                })
-            }).then((data) => {
-                return db.collection("topics").get();
-            }).then((querySnapshot) => {
-                    querySnapshot.forEach((doc) => {
-                        var docs = doc.data();
-                        topics[docs.title] = docs.id;
-                        console.log(docs.title, docs.data);
-                        notopic += 1;
-                    });
-                    console.log(topics);
-                    sel("#master").innerHTML = sel("#temp").innerHTML;
-                    $.LoadingOverlay("hide");
+    firebase.auth().createUserWithEmailAndPassword(email, pass).then(() => {
+        return db.collection("users").add({
+            gender,
+            name,
+            email,
+            uid: firebase.auth().currentUser.uid
+        })
+    }).then((data) => {
+        return db.collection("topics").get();
+    }).then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            var docs = doc.data();
+            topics[docs.title] = docs.id;
+            console.log(docs.title, docs.data);
+            notopic += 1;
+        });
+        console.log(topics);
+        sel("#master").innerHTML = sel("#temp").innerHTML;
+        $.LoadingOverlay("hide");
 
-                    autocomplete(sel("#skills"),Object.keys(topics));
-                    sel("#add").addEventListener("click", () => {
-                        skills.push(sel("#skills").value);
-                        sel("#skills").value = "";
-                        console.log(skills);
+        autocomplete(sel("#skills"), Object.keys(topics));
+        sel("#add").addEventListener("click", () => {
+            skills.push(sel("#skills").value);
+            sel("#skills").value = "";
+            console.log(skills);
+        });
+        sel("#submit").addEventListener("click", () => {
+            console.log("hey");
+            var unknown = skills.filter((d) => !topics[d]);
+            var known = skills.filter((d) => topics[d]);
+            console.log(known, unknown);
+            if (!unknown.length) {
+                var merge = known.concat(unknown);
+                console.log(merge);
+                db.collection("topics").get().then((d) => {
+                    var topicsr = [];
+                    d.forEach((doc) => {
+                        topicsr.push(doc.data());
                     });
-                    sel("#submit").addEventListener("click", () => {
-                            console.log("hey");
-                            var unknown = skills.filter((d) => !topics[d]);
-                            var known = skills.filter((d) => topics[d]);
-                            console.log(known, unknown);
-                            unknown.forEach((d, i) => {
-                                    db.collection("topics").add({
-                                        title: d,
-                                        id: notopic + i + 1 + 100
-                                    }).then(() => {
-                                            var merge = known.concat(unknown);
-                                            console.log(merge);
-                                            db.collection("topics").get().then((d) => {
-                                                    var topicsr = [];
-                                                    d.forEach((doc) => {
-                                                        topicsr.push(doc.data());
-                                                    });
-                                                    console.log(topicsr);
-                                                    var ids=[];
-                                                    merge.forEach(d=>{
-                                                        ids.push(topicsr.find((x) => d == x.title).id);
-                                                    });
-                                                    console.log(ids);
-                                                    db.collection("users").where("uid", "==", firebase.auth().currentUser.uid).get().then((qs) => {
-                                                            qs.forEach((d) => {
-                                                                console.log(d.id);
-                                                                    db.collection("users").doc(d.id).set({
-                                                                            skills: ids
-                                                                        }, {
-                                                                            merge: true
-                                                                        }
-                                                                    )
-                                                            })
-                                                    });
-                                            });
-                                    });
-                            });
+                    console.log(topicsr);
+                    var ids = [];
+                    merge.forEach(d => {
+                        ids.push(topicsr.find((x) => d == x.title).id);
+                    });
+                    console.log(ids);
+                    db.collection("users").where("uid", "==", firebase.auth().currentUser.uid).get().then((qs) => {
+                        qs.forEach((d) => {
+                            console.log(d.id);
+                            db.collection("users").doc(d.id).set({
+                                skills: ids
+                            }, {
+                                merge: true
+                            }).then(()=>{
+                                window.open("community.html", "_self");
+
+                            })
+                        })
+                    });
+                });
+                return;
+
+            }
+            unknown.forEach((d, i) => {
+                db.collection("topics").add({
+                    title: d,
+                    id: notopic + i + 1 + 100
+                }).then(() => {
+                    var merge = known.concat(unknown);
+                    console.log(merge);
+                    db.collection("topics").get().then((d) => {
+                        var topicsr = [];
+                        d.forEach((doc) => {
+                            topicsr.push(doc.data());
                         });
-                    }).catch((err) => {
-                    console.log(err);
-                    signedUp = false;
+                        console.log(topicsr);
+                        var ids = [];
+                        merge.forEach(d => {
+                            ids.push(topicsr.find((x) => d == x.title).id);
+                        });
+                        console.log(ids);
+                        db.collection("users").where("uid", "==", firebase.auth().currentUser.uid).get().then((qs) => {
+                            qs.forEach((d) => {
+                                console.log(d.id);
+                                db.collection("users").doc(d.id).set({
+                                    skills: ids
+                                }, {
+                                    merge: true
+                                }).then(()=>{
+                                    window.open("community.html", "_self");
+
+                                })
+                            })
+                        });
+                    });
                 });
             });
+        });
+    }).catch((err) => {
+        console.log(err);
+        signedUp = false;
+    });
+});
 
-        // auth.onAuthStateChanged(function (authdata) {
-        //     if (authdata && (!signedUp)) {
-        //         window.open("home.html", "_self");
-        //         return;
-        //     } else {
-        //         console.log("Signed out");
-        //     }
-        // });
+auth.onAuthStateChanged(function (authdata) {
+    if (authdata && (!signedUp)) {
+        window.open("community.html", "_self");
+        return;
+    } else {
+        console.log("Signed out");
+    }
+});
 
 
-        function signIn(email, pass) {
-            auth.signInWithEmailAndPassword(email, pass).catch((err) => alert(err));
-        }
+function signIn(email, pass) {
+    auth.signInWithEmailAndPassword(email, pass).catch((err) => alert(err));
+}
 
 
 
-        var skills = [];
-},{"./autocomplete.js":1,"./utility.js":20,"firebase":15,"gasparesganga-jquery-loading-overlay":16,"jquery":18}],3:[function(require,module,exports){
+var skills = [];
+},{"./autocomplete.js":2,"./utility.js":21,"firebase":16,"gasparesganga-jquery-loading-overlay":17,"jquery":19}],4:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -729,7 +949,7 @@ exports.default = firebase;
 exports.firebase = firebase;
 
 
-},{"@firebase/logger":9,"@firebase/util":13,"tslib":19}],4:[function(require,module,exports){
+},{"@firebase/logger":10,"@firebase/util":14,"tslib":20}],5:[function(require,module,exports){
 (function (global){
 (function() {var firebase = require('@firebase/app').default;var k,aa="function"==typeof Object.defineProperties?Object.defineProperty:function(a,b,c){a!=Array.prototype&&a!=Object.prototype&&(a[b]=c.value)},ba="undefined"!=typeof window&&window===this?this:"undefined"!=typeof global&&null!=global?global:this;function ca(a,b){if(b){var c=ba;a=a.split(".");for(var d=0;d<a.length-1;d++){var e=a[d];e in c||(c[e]={});c=c[e]}a=a[a.length-1];d=c[a];b=b(d);b!=d&&null!=b&&aa(c,a,{configurable:!0,writable:!0,value:b})}}
 function da(a){var b=0;return function(){return b<a.length?{done:!1,value:a[b++]}:{done:!0}}}function ea(a){var b="undefined"!=typeof Symbol&&Symbol.iterator&&a[Symbol.iterator];return b?b.call(a):{next:da(a)}}
@@ -1096,7 +1316,7 @@ Y(Dg.prototype,{w:{name:"toJSON",j:[V(null,!0)]}});Y(M.prototype,{toJSON:{name:"
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"@firebase/app":3}],5:[function(require,module,exports){
+},{"@firebase/app":4}],6:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -16522,7 +16742,7 @@ exports.registerDatabase = registerDatabase;
 
 
 }).call(this,require('_process'))
-},{"@firebase/app":3,"@firebase/logger":9,"@firebase/util":13,"_process":21,"tslib":19}],6:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/logger":10,"@firebase/util":14,"_process":1,"tslib":20}],7:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -38422,7 +38642,7 @@ exports.registerFirestore = registerFirestore;
 
 
 }).call(this,require('_process'))
-},{"@firebase/app":3,"@firebase/logger":9,"@firebase/util":13,"@firebase/webchannel-wrapper":14,"_process":21,"tslib":19}],7:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/logger":10,"@firebase/util":14,"@firebase/webchannel-wrapper":15,"_process":1,"tslib":20}],8:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -39013,7 +39233,7 @@ registerFunctions(firebase);
 exports.registerFunctions = registerFunctions;
 
 
-},{"@firebase/app":3,"tslib":19}],8:[function(require,module,exports){
+},{"@firebase/app":4,"tslib":20}],9:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -40101,7 +40321,7 @@ registerInstallations(firebase);
 exports.registerInstallations = registerInstallations;
 
 
-},{"@firebase/app":3,"@firebase/util":13,"idb":17,"tslib":19}],9:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/util":14,"idb":18,"tslib":20}],10:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -40292,7 +40512,7 @@ exports.Logger = Logger;
 exports.setLogLevel = setLogLevel;
 
 
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -42456,7 +42676,7 @@ exports.isSupported = isSupported;
 exports.registerMessaging = registerMessaging;
 
 
-},{"@firebase/app":3,"@firebase/util":13,"tslib":19}],11:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/util":14,"tslib":20}],12:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -43663,7 +43883,7 @@ else {
 exports.registerPerformance = registerPerformance;
 
 
-},{"@firebase/app":3,"@firebase/installations":8,"@firebase/logger":9,"@firebase/util":13,"tslib":19}],12:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/installations":9,"@firebase/logger":10,"@firebase/util":14,"tslib":20}],13:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, '__esModule', { value: true });
@@ -47359,7 +47579,7 @@ registerStorage(firebase);
 exports.registerStorage = registerStorage;
 
 
-},{"@firebase/app":3,"tslib":19}],13:[function(require,module,exports){
+},{"@firebase/app":4,"tslib":20}],14:[function(require,module,exports){
 (function (global){
 'use strict';
 
@@ -49094,7 +49314,7 @@ exports.validateNamespace = validateNamespace;
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"tslib":19}],14:[function(require,module,exports){
+},{"tslib":20}],15:[function(require,module,exports){
 (function (global){
 (function() {'use strict';var g,goog=goog||{},k=this;function m(a){return"string"==typeof a}function aa(a){return"number"==typeof a}function n(a,b){a=a.split(".");b=b||k;for(var c=0;c<a.length;c++)if(b=b[a[c]],null==b)return null;return b}function ba(){}
 function p(a){var b=typeof a;if("object"==b)if(a){if(a instanceof Array)return"array";if(a instanceof Object)return b;var c=Object.prototype.toString.call(a);if("[object Window]"==c)return"object";if("[object Array]"==c||"number"==typeof a.length&&"undefined"!=typeof a.splice&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("splice"))return"array";if("[object Function]"==c||"undefined"!=typeof a.call&&"undefined"!=typeof a.propertyIsEnumerable&&!a.propertyIsEnumerable("call"))return"function"}else return"null";
@@ -49187,7 +49407,7 @@ X.prototype.getResponseJson=X.prototype.Va;X.prototype.getResponseText=X.prototy
 
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],15:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
@@ -49341,7 +49561,7 @@ console.warn("\nIt looks like you're using the development build of the Firebase
 module.exports = firebase;
 
 
-},{"@firebase/app":3,"@firebase/auth":4,"@firebase/database":5,"@firebase/firestore":6,"@firebase/functions":7,"@firebase/messaging":10,"@firebase/performance":11,"@firebase/storage":12}],16:[function(require,module,exports){
+},{"@firebase/app":4,"@firebase/auth":5,"@firebase/database":6,"@firebase/firestore":7,"@firebase/functions":8,"@firebase/messaging":11,"@firebase/performance":12,"@firebase/storage":13}],17:[function(require,module,exports){
 /***************************************************************************************************
 LoadingOverlay - A flexible loading overlay jQuery plugin
     Author          : Gaspare Sganga
@@ -49350,7 +49570,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
     Documentation   : https://gasparesganga.com/labs/jquery-loading-overlay/
 ***************************************************************************************************/
 !function(e){"function"==typeof define&&define.amd?define(["jquery"],e):"object"==typeof module&&module.exports?e(require("jquery")):e(jQuery)}(function(g,a){"use strict";var o={background:"rgba(255, 255, 255, 0.8)",backgroundClass:"",image:"<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 1000'><circle r='80' cx='500' cy='90'/><circle r='80' cx='500' cy='910'/><circle r='80' cx='90' cy='500'/><circle r='80' cx='910' cy='500'/><circle r='80' cx='212' cy='212'/><circle r='80' cx='788' cy='212'/><circle r='80' cx='212' cy='788'/><circle r='80' cx='788' cy='788'/></svg>",imageAnimation:"2000ms rotate_right",imageAutoResize:!0,imageResizeFactor:1,imageColor:"#202020",imageClass:"",imageOrder:1,fontawesome:"",fontawesomeAnimation:"",fontawesomeAutoResize:!0,fontawesomeResizeFactor:1,fontawesomeColor:"#202020",fontawesomeOrder:2,custom:"",customAnimation:"",customAutoResize:!0,customResizeFactor:1,customOrder:3,text:"",textAnimation:"",textAutoResize:!0,textResizeFactor:.5,textColor:"#202020",textClass:"",textOrder:4,progress:!1,progressAutoResize:!0,progressResizeFactor:.25,progressColor:"#a0a0a0",progressClass:"",progressOrder:5,progressFixedPosition:"",progressSpeed:200,progressMin:0,progressMax:100,size:50,maxSize:120,minSize:20,direction:"column",fade:!0,resizeInterval:50,zIndex:2147483647},c={overlay:{"box-sizing":"border-box",position:"relative",display:"flex","flex-wrap":"nowrap","align-items":"center","justify-content":"space-around"},element:{"box-sizing":"border-box",overflow:"visible",flex:"0 0 auto",display:"flex","justify-content":"center","align-items":"center"},element_svg:{width:"100%",height:"100%"},progress_fixed:{position:"absolute",left:"0",width:"100%"},progress_wrapper:{position:"absolute",top:"0",left:"0",width:"100%",height:"100%"},progress_bar:{position:"absolute",left:"0"}},n={count:0,container:a,settings:a,wholePage:a,resizeIntervalId:a,text:a,progress:a},s={animations:["rotate_right","rotate_left","fadein","pulse"],progressPosition:["top","bottom"]},d={animations:{name:"rotate_right",time:"2000ms"},fade:[400,200]};function r(e,s){e=g(e),s.size=b(s.size),s.maxSize=parseInt(s.maxSize,10)||0,s.minSize=parseInt(s.minSize,10)||0,s.resizeInterval=parseInt(s.resizeInterval,10)||0;var t=u(e),a=v(e);if(!1===a){if((a=g.extend({},n)).container=e,a.wholePage=e.is("body"),t=g("<div>",{class:"loadingoverlay"}).css(c.overlay).css("flex-direction","row"===s.direction.toLowerCase()?"row":"column"),s.backgroundClass?t.addClass(s.backgroundClass):t.css("background",s.background),a.wholePage&&t.css({position:"fixed",top:0,left:0,width:"100%",height:"100%"}),void 0!==s.zIndex&&t.css("z-index",s.zIndex),s.image){g.isArray(s.imageColor)?0===s.imageColor.length?s.imageColor=!1:1===s.imageColor.length?s.imageColor={fill:s.imageColor[0]}:s.imageColor={fill:s.imageColor[0],stroke:s.imageColor[1]}:s.imageColor&&(s.imageColor={fill:s.imageColor});var o=x(t,s.imageOrder,s.imageAutoResize,s.imageResizeFactor,s.imageAnimation);"<svg"===s.image.slice(0,4).toLowerCase()&&"</svg>"===s.image.slice(-6).toLowerCase()?(o.append(s.image),o.children().css(c.element_svg),!s.imageClass&&s.imageColor&&o.find("*").css(s.imageColor)):".svg"===s.image.slice(-4).toLowerCase()||"data:image/svg"===s.image.slice(0,14).toLowerCase()?g.ajax({url:s.image,type:"GET",dataType:"html",global:!1}).done(function(e){o.html(e),o.children().css(c.element_svg),!s.imageClass&&s.imageColor&&o.find("*").css(s.imageColor)}):o.css({"background-image":"url("+s.image+")","background-position":"center","background-repeat":"no-repeat","background-size":"cover"}),s.imageClass&&o.addClass(s.imageClass)}if(s.fontawesome){o=x(t,s.fontawesomeOrder,s.fontawesomeAutoResize,s.fontawesomeResizeFactor,s.fontawesomeAnimation).addClass("loadingoverlay_fa");g("<div>",{class:s.fontawesome}).appendTo(o),s.fontawesomeColor&&o.css("color",s.fontawesomeColor)}if(s.custom)o=x(t,s.customOrder,s.customAutoResize,s.customResizeFactor,s.customAnimation).append(s.custom);if(s.text&&(a.text=x(t,s.textOrder,s.textAutoResize,s.textResizeFactor,s.textAnimation).addClass("loadingoverlay_text").text(s.text),s.textClass?a.text.addClass(s.textClass):s.textColor&&a.text.css("color",s.textColor)),s.progress){o=x(t,s.progressOrder,s.progressAutoResize,s.progressResizeFactor,!1).addClass("loadingoverlay_progress");var r=g("<div>").css(c.progress_wrapper).appendTo(o);a.progress={bar:g("<div>").css(c.progress_bar).appendTo(r),fixed:!1,margin:0,min:parseFloat(s.progressMin),max:parseFloat(s.progressMax),speed:parseInt(s.progressSpeed,10)};var i=(s.progressFixedPosition+"").replace(/\s\s+/g," ").toLowerCase().split(" ");2===i.length&&w(i[0])?(a.progress.fixed=i[0],a.progress.margin=b(i[1])):2===i.length&&w(i[1])?(a.progress.fixed=i[1],a.progress.margin=b(i[0])):1===i.length&&w(i[0])&&(a.progress.fixed=i[0],a.progress.margin=0),"top"===a.progress.fixed?o.css(c.progress_fixed).css("top",a.progress.margin?a.progress.margin.value+(a.progress.margin.fixed?a.progress.margin.units:"%"):0):"bottom"===a.progress.fixed&&o.css(c.progress_fixed).css("top","auto"),s.progressClass?a.progress.bar.addClass(s.progressClass):s.progressColor&&a.progress.bar.css("background",s.progressColor)}s.fade?!0===s.fade?s.fade=d.fade:"string"==typeof s.fade||"number"==typeof s.fade?s.fade=[s.fade,s.fade]:g.isArray(s.fade)&&s.fade.length<2&&(s.fade=[s.fade[0],s.fade[0]]):s.fade=[0,0],s.fade=[parseInt(s.fade[0],10),parseInt(s.fade[1],10)],a.settings=s,t.data("loadingoverlay_data",a),e.data("loadingoverlay",t),t.fadeTo(0,.01).appendTo("body"),p(e,!0),0<s.resizeInterval&&(a.resizeIntervalId=setInterval(function(){p(e,!1)},s.resizeInterval)),t.fadeTo(s.fade[0],1)}a.count++}function i(e,s){var t=u(e=g(e)),a=v(e);!1!==a&&(a.count--,(s||a.count<=0)&&t.animate({opacity:0},a.settings.fade[1],function(){a.resizeIntervalId&&clearInterval(a.resizeIntervalId),g(this).remove(),e.removeData("loadingoverlay")}))}function l(e){p(g(e),!0)}function m(e,s){var t=v(e=g(e));!1!==t&&t.text&&(!1===s?t.text.hide():t.text.show().text(s))}function f(e,s){var t=v(e=g(e));if(!1!==t&&t.progress)if(!1===s)t.progress.bar.hide();else{var a=100*((parseFloat(s)||0)-t.progress.min)/(t.progress.max-t.progress.min);a<0&&(a=0),100<a&&(a=100),t.progress.bar.show().animate({width:a+"%"},t.progress.speed)}}function p(e,t){var s=u(e),a=v(e);if(!1!==a){if(!a.wholePage){var o="fixed"===e.css("position"),r=o?e[0].getBoundingClientRect():e.offset();s.css({position:o?"fixed":"absolute",top:r.top+parseInt(e.css("border-top-width"),10),left:r.left+parseInt(e.css("border-left-width"),10),width:e.innerWidth(),height:e.innerHeight()})}if(a.settings.size){var i=a.wholePage?g(window):e,n=a.settings.size.value;a.settings.size.fixed||(n=Math.min(i.innerWidth(),i.innerHeight())*n/100,a.settings.maxSize&&n>a.settings.maxSize&&(n=a.settings.maxSize),a.settings.minSize&&n<a.settings.minSize&&(n=a.settings.minSize)),s.children(".loadingoverlay_element").each(function(){var e=g(this);if(t||e.data("loadingoverlay_autoresize")){var s=e.data("loadingoverlay_resizefactor");e.hasClass("loadingoverlay_fa")||e.hasClass("loadingoverlay_text")?e.css("font-size",n*s+a.settings.size.units):e.hasClass("loadingoverlay_progress")?(a.progress.bar.css("height",n*s+a.settings.size.units),a.progress.fixed?"bottom"===a.progress.fixed&&e.css("bottom",a.progress.margin?a.progress.margin.value+(a.progress.margin.fixed?a.progress.margin.units:"%"):0).css("bottom","+="+n*s+a.settings.size.units):a.progress.bar.css("top",e.position().top).css("top","-="+n*s*.5+a.settings.size.units)):e.css({width:n*s+a.settings.size.units,height:n*s+a.settings.size.units})}})}}}function u(e){return e.data("loadingoverlay")}function v(e){var s=u(e),t=void 0===s?a:s.data("loadingoverlay_data");return void 0===t?(g(".loadingoverlay").each(function(){var e=g(this),s=e.data("loadingoverlay_data");document.body.contains(s.container[0])||(s.resizeIntervalId&&clearInterval(s.resizeIntervalId),e.remove())}),!1):(s.toggle(e.is(":visible")),t)}function x(e,s,t,a,o){var r=g("<div>",{class:"loadingoverlay_element",css:{order:s}}).css(c.element).data({loadingoverlay_autoresize:t,loadingoverlay_resizefactor:a}).appendTo(e);if(!0===o&&(o=d.animations.time+" "+d.animations.name),"string"==typeof o){var i,n,l=o.replace(/\s\s+/g," ").toLowerCase().split(" ");2===l.length&&h(l[0])&&y(l[1])?(i=l[1],n=l[0]):2===l.length&&h(l[1])&&y(l[0])?(i=l[0],n=l[1]):1===l.length&&h(l[0])?(i=d.animations.name,n=l[0]):1===l.length&&y(l[0])&&(i=l[0],n=d.animations.time),r.css({"animation-name":"loadingoverlay_animation__"+i,"animation-duration":n,"animation-timing-function":"linear","animation-iteration-count":"infinite"})}return r}function h(e){return!isNaN(parseFloat(e))&&("s"===e.slice(-1)||"ms"===e.slice(-2))}function y(e){return-1<s.animations.indexOf(e)}function w(e){return-1<s.progressPosition.indexOf(e)}function b(e){return!(!e||e<0)&&("string"==typeof e&&-1<["vmin","vmax"].indexOf(e.slice(-4))?{fixed:!0,units:e.slice(-4),value:e.slice(0,-4)}:"string"==typeof e&&-1<["rem"].indexOf(e.slice(-3))?{fixed:!0,units:e.slice(-3),value:e.slice(0,-3)}:"string"==typeof e&&-1<["px","em","cm","mm","in","pt","pc","vh","vw"].indexOf(e.slice(-2))?{fixed:!0,units:e.slice(-2),value:e.slice(0,-2)}:{fixed:!1,units:"px",value:parseFloat(e)})}g.LoadingOverlaySetup=function(e){g.extend(!0,o,e)},g.LoadingOverlay=function(e,s){switch(e.toLowerCase()){case"show":r("body",g.extend(!0,{},o,s));break;case"hide":i("body",s);break;case"resize":l("body");break;case"text":m("body",s);break;case"progress":f("body",s)}},g.fn.LoadingOverlay=function(e,s){switch(e.toLowerCase()){case"show":var t=g.extend(!0,{},o,s);return this.each(function(){r(this,t)});case"hide":return this.each(function(){i(this,s)});case"resize":return this.each(function(){l(this)});case"text":return this.each(function(){m(this,s)});case"progress":return this.each(function(){f(this,s)})}},g(function(){g("head").append(["<style>","@-webkit-keyframes loadingoverlay_animation__rotate_right {","to {","-webkit-transform : rotate(360deg);","transform : rotate(360deg);","}","}","@keyframes loadingoverlay_animation__rotate_right {","to {","-webkit-transform : rotate(360deg);","transform : rotate(360deg);","}","}","@-webkit-keyframes loadingoverlay_animation__rotate_left {","to {","-webkit-transform : rotate(-360deg);","transform : rotate(-360deg);","}","}","@keyframes loadingoverlay_animation__rotate_left {","to {","-webkit-transform : rotate(-360deg);","transform : rotate(-360deg);","}","}","@-webkit-keyframes loadingoverlay_animation__fadein {","0% {","opacity   : 0;","-webkit-transform : scale(0.1, 0.1);","transform : scale(0.1, 0.1);","}","50% {","opacity   : 1;","}","100% {","opacity   : 0;","-webkit-transform : scale(1, 1);","transform : scale(1, 1);","}","}","@keyframes loadingoverlay_animation__fadein {","0% {","opacity   : 0;","-webkit-transform : scale(0.1, 0.1);","transform : scale(0.1, 0.1);","}","50% {","opacity   : 1;","}","100% {","opacity   : 0;","-webkit-transform : scale(1, 1);","transform : scale(1, 1);","}","}","@-webkit-keyframes loadingoverlay_animation__pulse {","0% {","-webkit-transform : scale(0, 0);","transform : scale(0, 0);","}","50% {","-webkit-transform : scale(1, 1);","transform : scale(1, 1);","}","100% {","-webkit-transform : scale(0, 0);","transform : scale(0, 0);","}","}","@keyframes loadingoverlay_animation__pulse {","0% {","-webkit-transform : scale(0, 0);","transform : scale(0, 0);","}","50% {","-webkit-transform : scale(1, 1);","transform : scale(1, 1);","}","100% {","-webkit-transform : scale(0, 0);","transform : scale(0, 0);","}","}","</style>"].join(" "))})});
-},{"jquery":18}],17:[function(require,module,exports){
+},{"jquery":19}],18:[function(require,module,exports){
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
@@ -49668,7 +49888,7 @@ LoadingOverlay - A flexible loading overlay jQuery plugin
 
 }));
 
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.4.1
  * https://jquery.com/
@@ -60268,7 +60488,7 @@ if ( !noGlobal ) {
 return jQuery;
 } );
 
-},{}],19:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 (function (global){
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -60515,7 +60735,7 @@ var __importDefault;
 });
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],20:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 function sel(data){
 return document.querySelector(data);
 }
@@ -60565,190 +60785,4 @@ function log(d){
 
 
 module.exports={sel,selAll,create,get,log};
-},{}],21:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}]},{},[2]);
+},{}]},{},[3]);

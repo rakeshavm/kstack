@@ -32,33 +32,30 @@
     </div>
   </nav>
   <div style="text-align: center;">
-    <div class="autocomplete" style="width:100%;text-align: center;">
-      <label for="skil" style="font-size:18px" class="font-op-b">Search</label>
-      <br>
-      <input id="skil" style="width: 96vw;margin: 2vh 2vw;display:block;text-align: left;" type="text"
-        placeholder="Search">
-    </div>
-    <label for="subskil" id="subtopic" style="font-size:18px" class="font-op-b">Search for subtopic</label>
-    <br>
-    <input id="subskil" type="text" style="width: 96vw;margin: 2vh 2vw;display:block;text-align: left;"
-      placeholder="Search for subtopic..">
-    </head>
-    <button style="margin:5px" class="btn btn-primary" id="submithelp">
-      Get Help!
+    <button type="button" class="btn btn-primary" style="margin-bottom: 10px;" data-toggle="modal"
+      data-target="#exampleModal">
+      Add New Skill
     </button>
-    <br>
-    
-  </div>
-  <div id="reqdiv" style="text-align: center;">
-      <!-- <img src="./lg.searching-for-loading-icon.gif" height="60px" width="60px"></img> -->
-    <p id="reqp">
-      Ongoing Requests
-    </p>
-    <div class="row">
-      <div class="col-sm-6" id="known">
-      </div>
-      <div class="col-sm-6" id="unknown">
 
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Add Skill</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <input class="" placeholder="enter skill.." id="newtopic" type="text"></input>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="subm" class="btn btn-primary" data-dismiss="modal">Submit</button>
+            <button type="button" class="btn btn-secondary">Cancel</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -72,28 +69,33 @@
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
   </script>
   <script id="entry-tem" type="text/x-handlebars-template">
+    <div class="container" style="text-align: center;">
             
-                <div class="card" id=parent{{topicid}} style="width: 40vw;margin: 2vh 2vw;display:inline-block;text-align: left;">
+            <div>
+                <div class="card" style="width: 40vw;margin: 2vh 2vw;display:inline-block;text-align: left;">
                     <div class="card-body">
                         <h5 class="topic font-op-b">{{title}}</h5>
                         <div>
                             <!-- <label class="regular">Content : </label> -->
                             <p id="cont" style="margin-bottom: 10px;" class="card-text regular">{{content}}</p>
                         </div>
-                        <p style="font-size:19px;color:black">Learners</p>
-                        <div id="imgl{{topicid}}">
-                          <img src={{url}} height="50px" width="50px" style="float: left;border-radius: 50%" alt="">
-                        </div>
-                        <i style="float: right; padding-top: 10px !important;" id="learn" class="fas fa-plus-circle"></i>
 
+                        <div>
+                          <p style="font-size:19px;color:black">Learners</p>
+                          <img src="./user.png" height="50px" width="50px" style="float: left;border-radius: 50%" alt="">
+                          <img src="./user.png" height="50px" width="50px" style="float: left;border-radius: 50%" alt="">
+                          <img src="./user.png" height="50px" width="50px" style="border-radius: 50%" alt="">
+                          <i style="float: right; padding-top: 10px !important;" id="prof" class="fas fa-plus-circle"></i>
+                        </div>
                         <p style="font-size:19px;color:black">Instructors</p>
-                        <div id="imgt{{topicid}}">
+                        <div id="teach">
+                          <img src="./user.png" height="50px" width="50px" style="float: left;border-radius: 50%" alt="">
                           <i style="float: right; padding-top: 10px !important;" id="teach" class="fas fa-plus-circle"></i>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
  </script>
-  <script src="bundle/pooltabel.js"></script>
+ <script src="bundle/temp.js"></script>
 </body>
-
-</html>
