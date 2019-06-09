@@ -57700,6 +57700,7 @@ var __importDefault;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{}],59:[function(require,module,exports){
+firebase = require('firebase');
 var {
     sel,
     selAll,
@@ -57707,7 +57708,7 @@ var {
     log,
     get
 } = require('./utility');
-firebase = require('firebase');
+
 
 var Handlebars = require('handlebars');
 
@@ -57724,140 +57725,197 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-var container = sel(".tcontainer");
+function start() {
+    var container = sel(".tcontainer");
 
-log(firebase);
+    log(firebase);
 
-var db = firebase.firestore();
+    var db = firebase.firestore();
 
-log(db);
-var template = (obj, n) => {
-    var src = sel("#entry-template").innerHTML;
-    var temp = Handlebars.compile(src);
+    log(db);
+    var template = (obj, n) => {
+        var src = sel("#entry-template").innerHTML;
+        var temp = Handlebars.compile(src);
 
-    if (n === 3) {
-        console.log("333333");
-        sel(".tcontainer").innerHTML = "";
+        if (n === 3) {
+            // console.log("333333");
+            // sel(".tcontainer").innerHTML = "";
+        } else {
+            if (n === 2)
+                sel(".tcontainer").innerHTML += convert(temp(obj));
+            // console.log(temp(obj))
+
+        }
+
     }
-    else {
-        if (n === 2) sel(".tcontainer").innerHTML = "";
-        sel(".tcontainer").innerHTML += convert(temp(obj));
-        // console.log(temp(obj))
-
+    var convert = (text) => {
+        var exp = /((\b(https?|ftp|file):\/\/|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+        var text1 = text.replace(exp, "<a href='$1'>$1</a>");
+        var exp2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+        text1.replace(exp2, `$1<a target="_blank" href="http://$2">$2</a>`);
+        return text1;
     }
 
-}
-var convert = (text) => {
-    var exp = /((\b(https?|ftp|file):\/\/|(www\.))[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-    var text1 = text.replace(exp, "<a href='$1'>$1</a>");
-    var exp2 = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-    text1.replace(exp2, `$1<a target="_blank" href="http://$2">$2</a>`);
-    return text1;
-}
+    var addDropdownEle = (obj) => {
+        var src = sel("#entry-template-droplist").innerHTML;
+        var temp = Handlebars.compile(src);
+        sel(".dropdown-menu").innerHTML += temp(obj)
+    }
 
-var addDropdownEle = (obj) => {
-    var src = sel("#entry-template-droplist").innerHTML;
-    var temp = Handlebars.compile(src);
-    sel(".dropdown-menu").innerHTML += temp(obj)
-}
+    var getTopicsCard = () => {
+        // var user = firebase.auth().currentUser.uid;
+        // let name = "";
+        // let arre = []
+        // db.collection("users").where("uid", "==", user).get().then((docs) => {
+        //         docs.forEach((doc) => {
+        //             arre = doc.data().skills;
+        //             name = doc.data().name;
+        //         })
+        //         console.log("eddd",arre)
+        //         return arre;
+        //     })
+        //     .then(skills => {
+        //         log(skills,"hey");
+        //         // result = [];
 
-var getTopicsCard = () => {
-    // var user = firebase.auth().currentUser;
-    let name = "";
-    db.collection("users").doc("LZHB76lgAO1NsaUpGZgN").get().then((doc) => {
-            // log(doc.data().skills);
-            name = doc.data().name;
-            return doc.data().skills;
-        })
-        .then(skills => {
-            log(skills,"hey");
-            // result = [];
-            skills.forEach(skill => {
-                // log("shit:",skill);
+        //         // log("shit:",skill);
 
-                db.collection("treasury").where("topicid", "==", skill).where("flag", "==", true).orderBy("time", "desc").get()
-                    .then(docs => {
-                        // log(docs);
-                        docs.forEach((doc, i) => {
-                            let tcontent = doc.data();
-                            db.collection("topics").where("id", "==", skill).get().then((docs) => {
-                                docs.forEach(doc => {
-                                    log(doc.data().title);
-                                    tcontent.title = doc.data().title;
-                                    // tcontent.name = name;
-                                    // log(tcontent);
-                                    // tcontent.content = convert(tcontent.content);
-                                    log(tcontent);
-                                    template(tcontent, 1);
-                                })
-                            }).catch(() => {
-                                template({}, 3);
+        //         db.collection("treasury").where("topicid", "==", skills[0]).where("flag", "==", true).orderBy("time", "desc").get()
+        //             .then(docs => {
+        //                 // log(docs);
+        //                 docs.forEach((doc, i) => {
+        //                     let tcontent = doc.data();
+        //                     db.collection("topics").where("id", "==", skills[0]).get().then((docs) => {
+        //                         docs.forEach(doc => {
+        //                             log(doc.data().title);
+        //                             tcontent.title = doc.data().title;
+        //                             // tcontent.name = name;
+        //                             // log(tcontent);
+        //                             // tcontent.content = convert(tcontent.content);
+        //                             log(tcontent);
+        //                             template(tcontent, 1);
+        //                         })
+        //                     }).catch(() => {
+        //                         template({}, 3);
+        //                     })
+
+        //                     // result.push(tcontent);
+        //                 })
+
+
+        //                 // log(result);
+        //             }).catch(err => log(err))
+
+        //     });
+
+        var user = firebase.auth().currentUser.uid;
+        let name = "";
+        let arre = []
+        db.collection("users").where("uid", "==", user).get().then((docs) => {
+            docs.forEach((doc) => {
+                arre = doc.data().skills;
+                name = doc.data().name;
+            })
+            console.log("eddd", arre)
+            return arre;
+        }).then(skills => {
+            console.log(skills, "skills");
+            var id;
+            db.collection("topics").where("title", "==", skills[0]).get().then(docs => {
+                docs.forEach(doc => {
+                    id = doc.data().id;
+                    console.log("id:", id);
+                    db.collection("treasury").where("topicid", "==", id).where("flag", "==", true).get()
+                        .then(docs => {
+                            if (docs.docs.length === 0) template(item, 3);
+                            docs.forEach(doc => {
+                                console.log(doc.data());
+                                let item = doc.data();
+                                item.stitle = event.target.innerHTML;
+                                console.log("yoyo", item);
+                                template(item, 2);
+
                             })
-
-                            // result.push(tcontent);
+                        }).catch(() => {
+                            console.log("hmmmmm");
+                            template({}, 3);
                         })
-
-
-                        // log(result);
-                    }).catch(err => log(err))
-            })
-        });
-}
-
-
-
-var getTopics = () => {
-    let result = [];
-    get(db, "topics")
-        .then((topics) => {
-            topics.forEach(topic => {
-                result.push({
-                    title: topic.title
-                });
-            })
-            console.log(result);
-            result.forEach(res => {
-                addDropdownEle(res);
+                })
 
             })
+        })
 
-            let a = document.querySelectorAll(".target");
-            a.forEach((ele) => {
-                ele.addEventListener("click", (event) => {
-                    console.log(event.target.innerHTML);
-                    db.collection("topics").where("title", "==", event.target.innerHTML).get().then((x) => {
-                        console.log(x);
-                        x.forEach((doc) => {
-                            console.log(doc.data().id);
-                            db.collection("treasury").where("topicid", "==", doc.data().id).where("flag", "==", true).get()
-                                .then(docs => {
-                                    if(docs.docs.length === 0)template(item,3);
-                                    docs.forEach(doc => {
-                                        console.log(doc.data());
-                                        let item = doc.data();
-                                        item.title = event.target.innerHTML;
-                                        console.log(item);
-                                        template(item, 2);
 
+    }
+
+
+
+    var getTopics = () => {
+        let result = [];
+        get(db, "topics")
+            .then((topics) => {
+                topics.forEach(topic => {
+                    result.push({
+                        title: topic.title
+                    });
+                })
+                console.log(result);
+                result.forEach(res => {
+                    addDropdownEle(res);
+
+                })
+
+                let a = document.querySelectorAll(".target");
+                a.forEach((ele) => {
+                    ele.addEventListener("click", (event) => {
+                        sel(".tcontainer").innerHTML = "";
+                        console.log(event.target.innerHTML);
+                        db.collection("topics").where("title", "==", event.target.innerHTML).get().then((x) => {
+                            console.log(x);
+                            x.forEach((doc) => {
+                                console.log(doc.data().id);
+                                db.collection("treasury").where("topicid", "==", doc.data().id).where("flag", "==", true).get()
+                                    .then(docs => {
+                                        if (docs.docs.length === 0) {
+                                            template(item, 3);
+                                        }
+                                        
+
+                                        docs.forEach(doc => {
+                                            console.log(doc.data());
+                                            let item = doc.data();
+                                            item.title = event.target.innerHTML;
+                                            console.log(item);
+                                            template(item, 2);
+
+                                        })
+                                    }).catch(() => {
+                                        console.log("hmmmmm");
+                                        // template({}, 3);
                                     })
-                                }).catch(() => {
-                                    console.log("hmmmmm");
-                                    template({}, 3);
-                                })
 
+                            })
                         })
                     })
                 })
+
             })
 
-        })
+    }
 
+
+    getTopicsCard();
+
+    getTopics();
 }
 
-
-getTopicsCard();
-
-getTopics();
+firebase.auth().onAuthStateChanged(function (authdata) {
+    if (authdata) {
+        start();
+    } else {
+        console.log("Signed out");
+    }
+});
 },{"./utility":60,"firebase":15,"handlebars":45}],60:[function(require,module,exports){
 function sel(data){
 return document.querySelector(data);
@@ -57877,13 +57935,18 @@ return els;
 
 
 function get(db,collection,a,b,c){
+    var data=[]
+    console.log(db,collection,a,b,c);
     return new Promise((res,rej)=>{
         if(a && b && c){
-            let data=[]
             db.collection(collection).where(a,b,c).get().then((qs)=>{
+                console.log("get enter lkdl");
                 qs.forEach((d)=>{
-                   data.push(d.data());
+                    data.push(d.data());
+                    console.log(data);
                 });
+                console.log("=========")
+                console.log(data);
                 res(data);
             }).catch((err)=>rej(err));
         }else{
@@ -57899,6 +57962,17 @@ function get(db,collection,a,b,c){
     });
 };
 
+function getImage(db,uid){
+    return new Promise((res,rej)=>{
+        console.log(uid+"hit");
+       db.collection("users").where("uid","==",uid).get().then((qs)=>{
+        qs.forEach((doc)=>{
+            res(doc.data().profilePic);
+        })
+       })
+    });
+}
+
 function log(d){
     console.log(d);
 }
@@ -57907,5 +57981,5 @@ function log(d){
 // array of documents
 
 
-module.exports={sel,selAll,create,get,log};
+module.exports={sel,selAll,create,get,log,getImage};
 },{}]},{},[59]);

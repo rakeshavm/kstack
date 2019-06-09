@@ -16,13 +16,18 @@ return els;
 
 
 function get(db,collection,a,b,c){
+    var data=[]
+    console.log(db,collection,a,b,c);
     return new Promise((res,rej)=>{
         if(a && b && c){
-            let data=[]
             db.collection(collection).where(a,b,c).get().then((qs)=>{
+                console.log("get enter lkdl");
                 qs.forEach((d)=>{
-                   data.push(d.data());
+                    data.push(d.data());
+                    console.log(data);
                 });
+                console.log("=========")
+                console.log(data);
                 res(data);
             }).catch((err)=>rej(err));
         }else{
@@ -40,9 +45,12 @@ function get(db,collection,a,b,c){
 
 function getImage(db,uid){
     return new Promise((res,rej)=>{
-       get(db,"users","uid","==",uid).then((data)=>{
-           res(data[0].profilePic);
-       }).catch((err)=>rej(err));
+        console.log(uid+"hit");
+       db.collection("users").where("uid","==",uid).get().then((qs)=>{
+        qs.forEach((doc)=>{
+            res(doc.data().profilePic);
+        })
+       })
     });
 }
 

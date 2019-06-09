@@ -32,7 +32,7 @@ var signedUp = false;
 let db = firebase.firestore();
 
 sel("#signin").addEventListener("click", function () {
-    signIn(sel("#username").value, sel("#pwd").value);
+    signIn(sel("#email").value, sel("#pwd").value);
 });
 
 sel("#signup").addEventListener("click", function () {

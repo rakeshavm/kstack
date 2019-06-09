@@ -103,6 +103,11 @@ body {
     font-size: 24px !important;
     color: black !important;
 }
+font-op-3{
+    font-family: 'Poppins';
+    font-size: 20px !important;
+    color: black !important;
+}
 
 .extend {
     width: 100%;

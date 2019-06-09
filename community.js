@@ -57,26 +57,36 @@ gettopic();
 
 
 sel("#subm").addEventListener("click", () => {
-  
-  var skil=[];
+
+  var skil = [];
   var title = document.querySelector("#newtopic").value;
   console.log("click");
   console.log(title);
   tarr.push(title);
- 
-  db.collection('users').where("uid","==",firebase.auth().currentUser.uid).get().then((docs) => {
-    docs.forEach((doc)=>{
-      skil = doc.data().skills;
-      skil.push(title)
-    })
-    console.log(tarr);
-  })
 
-  db.collection('users').where("uid","==",firebase.auth().currentUser.uid).set({
-       skills: skil
-  }, {
-    merge: true 
-  }) 
+
+  var idyo;
+  db.collection("topics").where("title", "==", title).get().then(docs => {
+      docs.forEach(doc => {
+        idyo = doc.data().id;
+      })
+      return idyo;
+    })
+    .then(id => {
+      db.collection('users').where("uid", "==", firebase.auth().currentUser.uid).get().then(data => {
+        data.forEach(doc => {
+          db.collection("users").doc(doc.id).update({
+            skills: firebase.firestore.FieldValue.arrayUnion(id)
+          }).then(() => {
+            console.log("joined");
+          });
+        })
+      })
+    })
+
+
+
+
   db.collection('topics').add({
     title: title,
     id: notopic
@@ -169,6 +179,7 @@ function brain() {
                   var len = [...new Set(arr.map(data => data.userid))].length;
                   setParticipants(len);
                   inject(arr);
+                  sel("#master").scrollTop = sel("#master").scrollHeight;
                 }
               })
 

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<div lang="en">
 
 <head>
   <meta charset="UTF-8">
@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
     integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css?family=Poppins:700|Raleway&display=swap" rel="stylesheet">
-
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/animate.css/3.2.0/animate.min.css">
   <link rel="stylesheet" href="./index.css">
 </head>
 
@@ -24,10 +24,10 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <a class="nav-item nav-link regular" style="font-size:19px;color:black" href="#">Treasury <span
-            class="sr-only">(current)</span></a>
-        <a class="nav-item nav-link regular" style="font-size:19px;color:black" href="#">Community</a>
-        <a class="nav-item nav-link active regular" style="font-size:19px;color:black" href="#">Pool Table</a>
+        <a class="nav-item nav-link active regular" style="font-size:19px;color:black" href="/treasury.html">Treasury
+          <span class="sr-only">(current)</span></a>
+        <a class="nav-item nav-link regular" style="font-size:19px;color:black" href="/community.html">Community</a>
+        <a class="nav-item nav-link regular" style="font-size:19px;color:black" href="/pooltable.html">Pool Table</a>
       </div>
     </div>
   </nav>
@@ -43,25 +43,114 @@
     <input id="subskil" type="text" style="width: 96vw;margin: 2vh 2vw;display:block;text-align: left;"
       placeholder="Search for subtopic..">
     </head>
-    <button style="margin:5px" class="btn btn-primary" id="submithelp">
+    <button style="margin:5px" class="btn btn-primary" id="submitHelp">
       Get Help!
     </button>
     <br>
-    
+
   </div>
-  <div id="reqdiv" style="text-align: center;">
-      <!-- <img src="./lg.searching-for-loading-icon.gif" height="60px" width="60px"></img> -->
+  <!-- id="reqdiv" style="text-align: center;">
+    <!-- <img src="./lg.searching-for-loading-icon.gif" height="60px" width="60px"></img> -->
     <p id="reqp">
+
       Ongoing Requests
     </p>
-    <div class="row">
-      <div class="col-sm-6" id="known">
+  </!-->
+
+  <div class="row">
+    <h5 class="primary text-center" style="text-align:left;width:50%">To Teach</h5>
+    <h5 class="primary text-center" style="text-align:right;width:50%">To learn</h5>
+
+    <div class='fa clearfix'>
+      <div id="known" style="float:left;max-width:50%">
+
       </div>
-      <div class="col-sm-6" id="unknown">
+
+      <div id="unknown" style="float:right;max-width:50%">
 
       </div>
     </div>
+
+    <a id="demo01" href="#animatedModal">DEMO01</a>
+
+    <!--DEMO01-->
+    <div id="animatedModal">
+      <!--THIS IS IMPORTANT! to close the modal, the class name has to match the name given on the ID  class="close-animatedModal" -->
+      <div class="close-animatedModal" id="closeModal">
+        CLOSE MODAL
+      </div>
+
+      <div class="modal-content">
+        <!-- conatainer for the cards -->
+    <div class="container" style="background:#eeeeee;">
+        <div style="width:100%;background:#eeeeee;">
+        <div class="flex">
+            <p id="groupname" style="width:80%" class="font-op-b"></p>
+            <button id="participants" class="btn btn-danger font-op text-center">Start group call</button>
+        </div>
+        </div>
+        <div id="master">
+          
+        </div>
+        <div class="row">
+            <div class="col-md-10" style="padding-right:0;padding-left:0">
+                    <input type="text" style="border:2px solid black" id="content">
+
+            </div>
+            <div class="col-md-1" style="padding-right:0;padding-left:0;background: black">
+                <button style="background:black;border:none;outline:none;" class="btn btn-primary regular" id="groupsubmit"><span>Send &nbsp;&nbsp;</span><i class="fas fa-paper-plane" style="color:white"></i>
+                </button>
+            </div>
+            <div class="col-md-1" style="padding-right:0;padding-left:0;background: white">
+                    <button style="background:white;border:none;outline:none;padding-left:0;padding-right:0" class="btn btn-primary regular" id="tgsubmit"><span style="color:black">Treasure&nbsp;&nbsp;</span><i class="fas fa-paper-plane" style="color:black"></i>
+                    </div>
+        </div>
+    </div>
+
+
+      </div>
+    </div>
+
   </div>
+  <script id="entry-tem" type="text/x-handlebars-template">
+
+    <div class="card" id=parent{{topicid}} style="width: 40vw;margin: 2vh 2vw;display:inline-block;text-align: left;">
+                    <div class="card-body">
+                        <h5 class="topic font-op-b">{{title}}</h5>
+                        <div>
+                            <!-- <label class="regular">Content : </label> -->
+                            <p id="cont" style="margin-bottom: 10px;" class="card-text regular">{{content}}</p>
+                        </div>
+                        <p style="font-size:19px;color:black">Learners</p>
+                        <div id="imgl{{topicid}}">
+                          <img src="{{url}}" height="50px" width="50px" style="border-radius: 50%" alt="">
+                        </div>
+                        <i style="top: 17vh;float: right;padding-top: 10px !important;position: absolute;left: 33vw;" id="learn" class="fas fa-plus-circle"></i>
+                        <p style="font-size:19px;color:black">Instructors</p>
+                        <div id="imgt{{topicid}}">
+                            <img src="{{turl}}" max-height="50px" width="50px" style="border-radius: 50%" alt="">
+
+                        </div>
+                        <i style="float: right;padding-top: 10px !important;position: absolute;left: 33vw;top: 26vh;" id="teach" class="fas fa-plus-circle"></i>
+
+                    </div>
+                </div>
+              </script>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+              <br>
+  
+<button id="lolss">brooo</button>
+<button id="lolss1">brooo1</button>
+<button id="lolss2">brooo2</button>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
     integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous">
   </script>
@@ -71,29 +160,11 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
     integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
   </script>
-  <script id="entry-tem" type="text/x-handlebars-template">
-            
-                <div class="card" id=parent{{topicid}} style="width: 40vw;margin: 2vh 2vw;display:inline-block;text-align: left;">
-                    <div class="card-body">
-                        <h5 class="topic font-op-b">{{title}}</h5>
-                        <div>
-                            <!-- <label class="regular">Content : </label> -->
-                            <p id="cont" style="margin-bottom: 10px;" class="card-text regular">{{content}}</p>
-                        </div>
-                        <p style="font-size:19px;color:black">Learners</p>
-                        <div id="imgl{{topicid}}">
-                          <img src={{url}} height="50px" width="50px" style="float: left;border-radius: 50%" alt="">
-                        </div>
-                        <i style="float: right; padding-top: 10px !important;" id="learn" class="fas fa-plus-circle"></i>
+  <script src="https://joaopereirawd.github.io/animatedModal.js/js/animatedModal.min.js"></script>
+  <script>
+    $("#demo01").animatedModal();
+  </script>
+    <script src="bundle/pooltabel.js"></script>
 
-                        <p style="font-size:19px;color:black">Instructors</p>
-                        <div id="imgt{{topicid}}">
-                          <i style="float: right; padding-top: 10px !important;" id="teach" class="fas fa-plus-circle"></i>
-                        </div>
-                    </div>
-                </div>
- </script>
-  <script src="bundle/pooltabel.js"></script>
 </body>
 
-</html>
